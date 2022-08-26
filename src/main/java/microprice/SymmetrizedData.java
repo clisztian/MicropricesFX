@@ -100,6 +100,16 @@ public class SymmetrizedData {
     private Table<Float, Float, ArrayList<Tick>> next_imb_bucket_map_no_move;
     private Table<Float, Float, ArrayList<Tick>> next_imb_bucket_map;
 
+    private Table<Float, Float, ArrayList<Tick>> spread_imb_bucket_map;
+
+    public Table<Float, Float, ArrayList<Tick>> getSpread_imb_bucket_map() {
+        return spread_imb_bucket_map;
+    }
+
+    public void setSpread_imb_bucket_map(Table<Float, Float, ArrayList<Tick>> spread_imb_bucket_map) {
+        this.spread_imb_bucket_map = spread_imb_bucket_map;
+    }
+
     public Table<Float, Float, ArrayList<Tick>> getNext_imb_bucket_map_no_move() {
         return next_imb_bucket_map_no_move;
     }
@@ -137,10 +147,20 @@ public class SymmetrizedData {
 
         this.ticksize = Math.round(this.ticksize*100)/100f;
 
+        System.out.println("total size before filter: " + d.size());
+        for(int i = 0; i < 80; i++) {
+
+            Tick t = d.get(i);
+            System.out.println(i + " " + t.getDate() + " " + t.getTimestamp() + " " + t.getSpread() + " " + n_spread*ticksize);
+
+        }
 
 
-        d = d.stream().filter(t-> (t.getSpread() > 0 && t.getSpread() < n_spread*ticksize))
+
+        d = d.stream().filter(t-> (t.getSpread() > 0 && t.getSpread() <= n_spread*ticksize))
                 .collect(Collectors.toCollection(ArrayList::new));
+
+        System.out.println("total size after spread filter: " + d.size());
 
         List<Float> imbs = d.stream().map(tick -> tick.getImb())
                 .collect(Collectors.toList());
@@ -162,10 +182,12 @@ public class SymmetrizedData {
 
         next_imb_bucket_map_no_move = HashBasedTable.create();
         next_imb_bucket_map = HashBasedTable.create();
-
+        spread_imb_bucket_map = HashBasedTable.create();
 
 
         this.d = new ArrayList<Tick>();
+
+
 
         ArrayList<Tick> mirror = new ArrayList<>();
         for(int i = 0; i < d.size() - dt; i++) {
@@ -189,7 +211,9 @@ public class SymmetrizedData {
             t.setdM( Math.round ( (next_t.getMid() - t.getMid()) / (this.ticksize*2)) * (this.ticksize/2f)  );
 
 
-            if( Math.abs(t.getdM()) <= ticksize*1.1f) {
+
+
+            if( Math.abs(t.getdM()) <= ticksize*1.1f  ) {
 
                 this.d.add(t);
 
@@ -280,6 +304,32 @@ public class SymmetrizedData {
                     else {
                         nmlist2.add(copy_t);
                     }
+
+
+
+                    ArrayList<Tick> list = spread_imb_bucket_map.get(t.getSpread(), t.getImb_bucket());
+                    if(list == null) {
+                        list = new ArrayList<Tick>(); list.add(t);
+                        spread_imb_bucket_map.put(t.getSpread(), t.getNext_imb_bucket(), list);
+
+                    }
+                    else {
+                        list.add(t);
+
+                    }
+
+
+
+                    ArrayList<Tick> list2 = spread_imb_bucket_map.get(t.getSpread(), copy_t.getImb_bucket());
+                    if(list2 == null) {
+                        list2 = new ArrayList<Tick>();  list2.add(copy_t);
+                        spread_imb_bucket_map.put(t.getSpread(), copy_t.getNext_imb_bucket(), list2);
+                    }
+                    else {
+                        list2.add(copy_t);
+                    }
+
+
                 }
 
             }
@@ -289,11 +339,12 @@ public class SymmetrizedData {
         all_spreads = new ArrayList<>();
         all_dms = new ArrayList<>();
         all_dms.addAll(mid.keySet());
+        all_spreads.addAll(spreads.keySet());
 
-        for(Map.Entry<Float, MutableInt> e : spreads.entrySet()) {
-
-            all_spreads.add(e.getKey());
-
+//        for(Map.Entry<Float, MutableInt> e : spreads.entrySet()) {
+//
+//            all_spreads.add(e.getKey());
+//
 //            for(int i = 0; i < 10; i++) {
 //                if(next_imb_bucket_map_no_move.get(e.getKey(), (float)i) != null) {
 //                    System.out.println(i + " " + next_imb_bucket_map_no_move.get(e.getKey(), (float)i).size());
@@ -308,7 +359,7 @@ public class SymmetrizedData {
 //                }
 //            }
 //            System.out.println();
-        }
+//        }
         Collections.sort(all_spreads);
         Collections.sort(all_dms);
 
@@ -317,9 +368,26 @@ public class SymmetrizedData {
             System.out.println(dms);
         }
 
+        System.out.println("total rows: " + this.d.size() + " " + mirror.size());
         this.d.addAll(mirror);
 
 
+
+        for(int i = 0; i < 30; i++) {
+
+            Tick t = this.d.get(i);
+            System.out.println(i + " " + t.getDate() + " " + t.getTimestamp() + " " + t.getImb() + " " + t.getImb_bucket() + " " + t.getNext_imb_bucket() + " " + t.getSpread() + " " + t.getdM());
+
+        }
+
+        for(int i = this.d.size() - 30; i < this.d.size(); i++) {
+
+            Tick t = this.d.get(i);
+            System.out.println(i + " " + t.getDate() + " " + t.getTimestamp() + " " + t.getImb() + " " + t.getImb_bucket() + " " + t.getNext_imb_bucket() + " " + t.getSpread() + " " + t.getdM());
+
+        }
+
+        System.out.println("total rows: " + this.d.size());
 
     }
 
@@ -340,7 +408,7 @@ public class SymmetrizedData {
 
         ArrayList<Tick> ticks = DataStore.getTickData("/home/lisztian/MicropriceFX/data/bac.csv");
 
-        SymmetrizedData sym = new SymmetrizedData(ticks, 4, 20);
+        SymmetrizedData sym = new SymmetrizedData(ticks, 1, 2);
 
     }
 
