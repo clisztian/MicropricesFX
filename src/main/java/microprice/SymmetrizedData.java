@@ -21,7 +21,7 @@ public class SymmetrizedData {
 
     private ArrayList<Tick> d;
     private int dt;
-    private float ticksize;
+    private double ticksize;
 
     private int n_imb;
 
@@ -49,11 +49,11 @@ public class SymmetrizedData {
         this.dt = dt;
     }
 
-    public float getTicksize() {
+    public double getTicksize() {
         return ticksize;
     }
 
-    public void setTicksize(float ticksize) {
+    public void setTicksize(Double ticksize) {
         this.ticksize = ticksize;
     }
 
@@ -65,79 +65,79 @@ public class SymmetrizedData {
         this.n_imb = n_imb;
     }
 
-    public HashMap<Float, MutableInt> getSpreads() {
+    public HashMap<Double, MutableInt> getSpreads() {
         return spreads;
     }
 
-    public void setSpreads(HashMap<Float, MutableInt> spreads) {
+    public void setSpreads(HashMap<Double, MutableInt> spreads) {
         this.spreads = spreads;
     }
 
-    private HashMap<Float, MutableInt> spreads;
-    private ArrayList<Float> all_spreads;
+    private HashMap<Double, MutableInt> spreads;
+    private ArrayList<Double> all_spreads;
 
-    private ArrayList<Float> all_dms;
+    private ArrayList<Double> all_dms;
 
-    public ArrayList<Float> getAll_dms() {
+    public ArrayList<Double> getAll_dms() {
         return all_dms;
     }
 
-    public void setAll_dms(ArrayList<Float> all_dms) {
+    public void setAll_dms(ArrayList<Double> all_dms) {
         this.all_dms = all_dms;
     }
 
-    public HashMap<Float, MutableInt> getMid() {
+    public HashMap<Double, MutableInt> getMid() {
         return mid;
     }
 
-    public void setMid(HashMap<Float, MutableInt> mid) {
+    public void setMid(HashMap<Double, MutableInt> mid) {
         this.mid = mid;
     }
 
-    private HashMap<Float, MutableInt> mid;
+    private HashMap<Double, MutableInt> mid;
 
 
-    private Table<Float, Float, ArrayList<Tick>> next_imb_bucket_map_no_move;
-    private Table<Float, Float, ArrayList<Tick>> next_imb_bucket_map;
+    private Table<Double, Double, ArrayList<Tick>> next_imb_bucket_map_no_move;
+    private Table<Double, Double, ArrayList<Tick>> next_imb_bucket_map;
 
-    private Table<Float, Float, ArrayList<Tick>> spread_imb_bucket_map;
+    private Table<Double, Double, ArrayList<Tick>> spread_imb_bucket_map;
 
-    public Table<Float, Float, ArrayList<Tick>> getSpread_imb_bucket_map() {
+    public Table<Double, Double, ArrayList<Tick>> getSpread_imb_bucket_map() {
         return spread_imb_bucket_map;
     }
 
-    public void setSpread_imb_bucket_map(Table<Float, Float, ArrayList<Tick>> spread_imb_bucket_map) {
+    public void setSpread_imb_bucket_map(Table<Double, Double, ArrayList<Tick>> spread_imb_bucket_map) {
         this.spread_imb_bucket_map = spread_imb_bucket_map;
     }
 
-    public Table<Float, Float, ArrayList<Tick>> getNext_imb_bucket_map_no_move() {
+    public Table<Double, Double, ArrayList<Tick>> getNext_imb_bucket_map_no_move() {
         return next_imb_bucket_map_no_move;
     }
 
-    public void setNext_imb_bucket_map_no_move(Table<Float, Float, ArrayList<Tick>> next_imb_bucket_map_no_move) {
+    public void setNext_imb_bucket_map_no_move(Table<Double, Double, ArrayList<Tick>> next_imb_bucket_map_no_move) {
         this.next_imb_bucket_map_no_move = next_imb_bucket_map_no_move;
     }
 
-    public Table<Float, Float, ArrayList<Tick>> getNext_imb_bucket_map() {
+    public Table<Double, Double, ArrayList<Tick>> getNext_imb_bucket_map() {
         return next_imb_bucket_map;
     }
 
-    public void setNext_imb_bucket_map(Table<Float, Float, ArrayList<Tick>> next_imb_bucket_map) {
+    public void setNext_imb_bucket_map(Table<Double, Double, ArrayList<Tick>> next_imb_bucket_map) {
         this.next_imb_bucket_map = next_imb_bucket_map;
     }
 
-    public ArrayList<Float> getAll_spreads() {
+    public ArrayList<Double> getAll_spreads() {
         return all_spreads;
     }
 
-    public void setAll_spreads(ArrayList<Float> all_spreads) {
+    public void setAll_spreads(ArrayList<Double> all_spreads) {
         this.all_spreads = all_spreads;
     }
 
     public SymmetrizedData(ArrayList<Tick> d, int dt, int n_spread) {
 
-        spreads = new HashMap<Float, MutableInt>();
-        mid = new HashMap<Float, MutableInt>();
+        spreads = new HashMap<Double, MutableInt>();
+        mid = new HashMap<Double, MutableInt>();
 
         this.n_imb = 10;
         this.dt = dt;
@@ -145,7 +145,7 @@ public class SymmetrizedData {
         this.ticksize = d.stream().filter(t -> t.getSpread() > 0)
                 .min(Comparator.comparingDouble(Tick::getSpread)).get().getSpread();
 
-        this.ticksize = Math.round(this.ticksize*100)/100f;
+        this.ticksize = Math.round(this.ticksize*100.0)/100.0;
 
         System.out.println("total size before filter: " + d.size());
         for(int i = 0; i < 80; i++) {
@@ -162,7 +162,7 @@ public class SymmetrizedData {
 
         System.out.println("total size after spread filter: " + d.size());
 
-        List<Float> imbs = d.stream().map(tick -> tick.getImb())
+        List<Double> imbs = d.stream().map(tick -> tick.getImb())
                 .collect(Collectors.toList());
 
         List<Integer> buckets = new ArrayList<>();
@@ -201,14 +201,14 @@ public class SymmetrizedData {
             t.setSpread( Math.round((t.getSpread())/this.ticksize) * this.ticksize  );
             next_t.setSpread( Math.round((next_t.getSpread())/this.ticksize) * this.ticksize  );
 
-            t.setImb_bucket( _qcuit(t.getImb(), quants, 10f));
+            t.setImb_bucket( _qcuit(t.getImb(), quants, 10.0));
 
-            t.setNext_imb_bucket( _qcuit(next_t.getImb(), quants, 10f));
+            t.setNext_imb_bucket( _qcuit(next_t.getImb(), quants, 10.0));
             t.setNext_mid( next_t.getMid());
             t.setNext_spread(next_t.getSpread());
             t.setNext_time(next_t.getTimestamp());
 
-            t.setdM( Math.round ( (next_t.getMid() - t.getMid()) / (this.ticksize*2)) * (this.ticksize/2f)  );
+            t.setdM( Math.round ( (next_t.getMid() - t.getMid()) / (this.ticksize*2.0)) * (this.ticksize/2.0)  );
 
 
 
@@ -341,18 +341,18 @@ public class SymmetrizedData {
         all_dms.addAll(mid.keySet());
         all_spreads.addAll(spreads.keySet());
 
-//        for(Map.Entry<Float, MutableInt> e : spreads.entrySet()) {
+//        for(Map.Entry<Double, MutableInt> e : spreads.entrySet()) {
 //
 //            all_spreads.add(e.getKey());
 //
 //            for(int i = 0; i < 10; i++) {
-//                if(next_imb_bucket_map_no_move.get(e.getKey(), (float)i) != null) {
-//                    System.out.println(i + " " + next_imb_bucket_map_no_move.get(e.getKey(), (float)i).size());
+//                if(next_imb_bucket_map_no_move.get(e.getKey(), (Double)i) != null) {
+//                    System.out.println(i + " " + next_imb_bucket_map_no_move.get(e.getKey(), (Double)i).size());
 //                }
 //            }
 //
 //            System.out.println("diff map");
-//            for(Map.Entry<Float, MutableInt> me : mid.entrySet()) {
+//            for(Map.Entry<Double, MutableInt> me : mid.entrySet()) {
 //
 //                if(next_imb_bucket_map.get(e.getKey(), (me.getKey())) != null) {
 //                    System.out.println(me.getKey() + " " + next_imb_bucket_map.get(e.getKey(), me.getKey()).size());
@@ -364,7 +364,7 @@ public class SymmetrizedData {
         Collections.sort(all_dms);
 
         System.out.println();
-        for(Float dms : all_dms) {
+        for(Double dms : all_dms) {
             System.out.println(dms);
         }
 
@@ -391,17 +391,17 @@ public class SymmetrizedData {
 
     }
 
-    public static float _qcuit(float imb, ArrayList<Double> bucket, float size) {
+    public static Double _qcuit(Double imb, ArrayList<Double> bucket, Double size) {
 
         for(int i = 0; i < bucket.size(); i++) {
             if(imb > bucket.get(i)) {
 
             }
             else {
-                return i*1f;
+                return i*1.0;
             }
         }
-        return bucket.size()*1f;
+        return bucket.size()*1.0;
     }
 
     public static void main(String[] args) throws IOException {

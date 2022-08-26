@@ -2,19 +2,19 @@ package microprice;
 
 public class Tick {
 
-    private float spread;
+    private double spread;
     private int date;
     private int timestamp;
 
-    private float imb_bucket;
-    private float next_mid;
-    private float next_imb_bucket;
-    private float next_spread;
-    private float next_time;
+    private double imb_bucket;
+    private double next_mid;
+    private double next_imb_bucket;
+    private double next_spread;
+    private double next_time;
 
-    private float dM;
+    private double dM;
 
-    public Tick(float spread, int date, int timestamp, float imb_bucket, float next_mid, float next_imb_bucket, float next_spread, float next_time, float dM, float bid, float bid_size, float ask, float ask_size, float imb, float mid, float wmid) {
+    public Tick(double spread, int date, int timestamp, double imb_bucket, double next_mid, double next_imb_bucket, double next_spread, double next_time, double dM, double bid, double bid_size, double ask, double ask_size, double imb, double mid, double wmid) {
         this.spread = spread;
         this.date = date;
         this.timestamp = timestamp;
@@ -33,56 +33,56 @@ public class Tick {
         this.wmid = wmid;
     }
 
-    public float getImb_bucket() {
+    public double getImb_bucket() {
         return imb_bucket;
     }
 
-    public void setImb_bucket(float imb_bucket) {
+    public void setImb_bucket(double imb_bucket) {
         this.imb_bucket = imb_bucket;
     }
 
-    public float getNext_mid() {
+    public double getNext_mid() {
         return next_mid;
     }
 
-    public void setNext_mid(float next_mid) {
+    public void setNext_mid(double next_mid) {
         this.next_mid = next_mid;
     }
 
-    public float getNext_imb_bucket() {
+    public double getNext_imb_bucket() {
         return next_imb_bucket;
     }
 
-    public void setNext_imb_bucket(float next_imb_bucket) {
+    public void setNext_imb_bucket(double next_imb_bucket) {
         this.next_imb_bucket = next_imb_bucket;
     }
 
-    public float getNext_spread() {
+    public double getNext_spread() {
         return next_spread;
     }
 
-    public void setNext_spread(float next_spread) {
+    public void setNext_spread(double next_spread) {
         this.next_spread = next_spread;
     }
 
-    public float getNext_time() {
+    public double getNext_time() {
         return next_time;
     }
 
-    public void setNext_time(float next_time) {
+    public void setNext_time(double next_time) {
         this.next_time = next_time;
     }
 
-    public float getdM() {
+    public double getdM() {
         return dM;
     }
 
-    public void setdM(float dM) {
+    public void setdM(double dM) {
         this.dM = dM;
     }
 
 
-    public Tick(int date, int timestamp, float bid, float bid_size, float ask, float ask_size, float imb, float mid, float wmid) {
+    public Tick(int date, int timestamp, double bid, double bid_size, double ask, double ask_size, double imb, double mid, double wmid) {
         this.date = date;
         this.timestamp = timestamp;
         this.bid = bid;
@@ -101,10 +101,10 @@ public class Tick {
         this.date = Integer.parseInt(lines[0]);
         this.timestamp = Integer.parseInt(lines[1]);
 
-        this.bid = Float.parseFloat(lines[2]);
-        this.bid_size = Float.parseFloat(lines[3]);
-        this.ask = Float.parseFloat(lines[4]);
-        this.ask_size = Float.parseFloat(lines[5]);
+        this.bid = Double.parseDouble(lines[2]);
+        this.bid_size = Double.parseDouble(lines[3]);
+        this.ask = Double.parseDouble(lines[4]);
+        this.ask_size = Double.parseDouble(lines[5]);
 
         this.imb = bid_size/(ask_size + bid_size);
         this.mid = (bid + ask)/2f;
@@ -136,82 +136,82 @@ public class Tick {
         this.timestamp = timestamp;
     }
 
-    public float getBid() {
+    public double getBid() {
         return bid;
     }
 
-    public void setBid(float bid) {
+    public void setBid(double bid) {
         this.bid = bid;
     }
 
-    public float getBid_size() {
+    public double getBid_size() {
         return bid_size;
     }
 
-    public void setBid_size(float bid_size) {
+    public void setBid_size(double bid_size) {
         this.bid_size = bid_size;
     }
 
-    public float getAsk() {
+    public double getAsk() {
         return ask;
     }
 
-    public void setAsk(float ask) {
+    public void setAsk(double ask) {
         this.ask = ask;
     }
 
-    public float getAsk_size() {
+    public double getAsk_size() {
         return ask_size;
     }
 
-    public void setAsk_size(float ask_size) {
+    public void setAsk_size(double ask_size) {
         this.ask_size = ask_size;
     }
 
-    public float getImb() {
+    public double getImb() {
         return imb;
     }
 
-    public void setImb(float imb) {
+    public void setImb(double imb) {
         this.imb = imb;
     }
 
-    public float getMid() {
+    public double getMid() {
         return mid;
     }
 
-    public void setMid(float mid) {
+    public void setMid(double mid) {
         this.mid = mid;
     }
 
-    public float getWmid() {
+    public double getWmid() {
         return wmid;
     }
 
-    public void setWmid(float wmid) {
+    public void setWmid(double wmid) {
         this.wmid = wmid;
     }
 
-    private float bid;
-    private float bid_size;
+    private double bid;
+    private double bid_size;
 
-    private float ask;
-    private float ask_size;
+    private double ask;
+    private double ask_size;
 
-    private float imb;
-    private float mid;
-    private float wmid;
+    private double imb;
+    private double mid;
+    private double wmid;
 
 
     public int getDate() {
         return date;
     }
 
-    public float getSpread() {
+    public double getSpread() {
         return spread;
     }
 
-    public void setSpread(float spread) {
+    public void setSpread(double spread) {
         this.spread = spread;
     }
 

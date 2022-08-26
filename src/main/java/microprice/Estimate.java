@@ -21,7 +21,7 @@ public class Estimate {
     DecimalFormat df;
     DecimalFormat df1;
 
-    private LinkedHashMap<Float, float[]> microprices;
+    private LinkedHashMap<Double, Double[]> microprices;
 
     private SymmetrizedData data;
 
@@ -44,20 +44,20 @@ public class Estimate {
         RealMatrix R1 = MatrixUtils.createRealMatrix(n_imb2, data.getAll_dms().size()-1);
 
 
-        Table<Float, Float, ArrayList<Tick>> next_no_move = data.getNext_imb_bucket_map_no_move();
-        Table<Float, Float, ArrayList<Tick>> next_move = data.getNext_imb_bucket_map();
-        Table<Float, Float, ArrayList<Tick>> spread_move = data.getSpread_imb_bucket_map();
+        Table<Double, Double, ArrayList<Tick>> next_no_move = data.getNext_imb_bucket_map_no_move();
+        Table<Double, Double, ArrayList<Tick>> next_move = data.getNext_imb_bucket_map();
+        Table<Double, Double, ArrayList<Tick>> spread_move = data.getSpread_imb_bucket_map();
 
 
 
         for(int i = 0; i < data.getAll_spreads().size(); i++) {
 
-            float s = data.getAll_spreads().get(i);
+            Double s = data.getAll_spreads().get(i);
             //build Q block diagnonal matrix
             for(int j = 0; j < n_imb; j++) {
 
 
-                ArrayList<Tick> ticks = next_no_move.get(s, (float)j);
+                ArrayList<Tick> ticks = next_no_move.get(s, (double)j);
                 int[] counts = new int[n_imb];
 
                 if(ticks != null) {
@@ -71,7 +71,7 @@ public class Estimate {
             }
 
             int row_count = 0;
-            for(Float dm : data.getAll_dms()) {
+            for(Double dm : data.getAll_dms()) {
 
                 if(dm != 0) {
 
@@ -94,13 +94,13 @@ public class Estimate {
             for(int j = 0; j < n_imb; j++) {
 
 
-                ArrayList<Tick> ticks3 = spread_move.get(s, (float)j);
+                ArrayList<Tick> ticks3 = spread_move.get(s, (double)j);
 
                 if(ticks3 != null) {
 
                     for(int sp = 0; sp < data.getAll_spreads().size(); sp++) {
 
-                        float ns = data.getAll_spreads().get(sp);
+                        Double ns = data.getAll_spreads().get(sp);
                         List<Tick> ns_ticks = ticks3.stream().filter(tick -> tick.getNext_spread() == ns).collect(Collectors.toList());
 
                         int[] counts = new int[n_imb];
@@ -170,7 +170,7 @@ public class Estimate {
 //        }
 
 
-        Float[] mids = data.getAll_dms().stream().filter(aFloat -> aFloat != 0).collect(Collectors.toList()).toArray(new Float[0]);
+        Double[] mids = data.getAll_dms().stream().filter(aDouble -> aDouble != 0).collect(Collectors.toList()).toArray(new Double[0]);
 
         System.out.println("K");
         double[] vec_all = new double[mids.length];
@@ -219,14 +219,14 @@ public class Estimate {
         RealMatrix G5 = B.power(4).multiply(G1).add(G4);
         RealMatrix G6 = B.power(5).multiply(G1).add(G5);
 
-        microprices = new LinkedHashMap<Float, float[]>();
+        microprices = new LinkedHashMap<Double, Double[]>();
 
         int count_spread = 0;
-        for(Float s : data.getAll_spreads()) {
+        for(Double s : data.getAll_spreads()) {
 
-            float[] adj = new float[data.getN_imb()];
+            Double[] adj = new Double[data.getN_imb()];
             for (int j = 0; j < data.getN_imb(); j++) {
-                adj[j] = (float) G6.getEntry(count_spread * data.getN_imb() + j, 0);
+                adj[j] = (Double) G6.getEntry(count_spread * data.getN_imb() + j, 0);
             }
             microprices.put(s, adj);
 
@@ -238,7 +238,7 @@ public class Estimate {
     }
 
 
-    public String toStringImb(float[] imb) {
+    public String toStringImb(Double[] imb) {
 
         String s = new String();
 
