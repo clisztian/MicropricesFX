@@ -62,7 +62,7 @@ public class Estimate {
 
                 if(ticks != null) {
                     for(Tick t : ticks) {
-                        counts[(int)t.getImb_bucket()]++;
+                        counts[(int)t.getNext_imb_bucket()]++;
                     }
                 }
 

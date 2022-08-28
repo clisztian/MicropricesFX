@@ -188,6 +188,7 @@ public class SymmetrizedData {
         this.d = new ArrayList<Tick>();
 
 
+        ArrayList<Tick> dm0 = new ArrayList<>();
 
         ArrayList<Tick> mirror = new ArrayList<>();
         for(int i = 0; i < d.size() - dt; i++) {
@@ -208,12 +209,14 @@ public class SymmetrizedData {
             t.setNext_spread(next_t.getSpread());
             t.setNext_time(next_t.getTimestamp());
 
-            t.setdM( Math.round ( (next_t.getMid() - t.getMid()) / (this.ticksize*2.0)) * (this.ticksize/2.0)  );
+            t.setdM( Math.round ( (next_t.getMid() - t.getMid()) *1000.0 ) /1000.0);
+
+//            if(i < 100) {
+//                System.out.println(i + " " + t.getDate() + " " + t.getTimestamp() + " " + t.getBid() + " " + t.getAsk() + " " + t.getMid() + " " + t.getdM() + " " + next_t.getMid() + " " + (next_t.getMid() - t.getMid()));
+//            }
 
 
-
-
-            if( Math.abs(t.getdM()) <= ticksize*1.1f  ) {
+            if( Math.abs(t.getdM()) <= ticksize*1.1  ) {
 
                 this.d.add(t);
 
@@ -261,10 +264,10 @@ public class SymmetrizedData {
 
                 if(t.getdM() == 0) {
 
-                    ArrayList<Tick> nmlist = next_imb_bucket_map_no_move.get(t.getSpread(), t.getNext_imb_bucket());
+                    ArrayList<Tick> nmlist = next_imb_bucket_map_no_move.get(t.getSpread(), t.getImb_bucket());
                     if(nmlist == null) {
                         nmlist = new ArrayList<Tick>(); nmlist.add(t);
-                        next_imb_bucket_map_no_move.put(t.getSpread(), t.getNext_imb_bucket(), nmlist);
+                        next_imb_bucket_map_no_move.put(t.getSpread(), t.getImb_bucket(), nmlist);
 
                     }
                     else {
@@ -274,18 +277,22 @@ public class SymmetrizedData {
 
 
 
-                    ArrayList<Tick> nmlist2 = next_imb_bucket_map_no_move.get(t.getSpread(), copy_t.getNext_imb_bucket());
+                    ArrayList<Tick> nmlist2 = next_imb_bucket_map_no_move.get(t.getSpread(), copy_t.getImb_bucket());
                     if(nmlist2 == null) {
                         nmlist2 = new ArrayList<Tick>();  nmlist2.add(copy_t);
-                        next_imb_bucket_map_no_move.put(t.getSpread(), copy_t.getNext_imb_bucket(), nmlist2);
+                        next_imb_bucket_map_no_move.put(t.getSpread(), copy_t.getImb_bucket(), nmlist2);
                     }
                     else {
                         nmlist2.add(copy_t);
                     }
 
+                    dm0.add(t);
+
 
                 }
                 else {
+
+
 
                     ArrayList<Tick> nmlist = next_imb_bucket_map.get(t.getSpread(), t.getdM());
                     if(nmlist == null) {
@@ -368,27 +375,28 @@ public class SymmetrizedData {
             System.out.println(dms);
         }
 
-        System.out.println("total rows: " + this.d.size() + " " + mirror.size());
+        System.out.println("total rows: " + (this.d.size() + mirror.size()));
         this.d.addAll(mirror);
 
 
 
         for(int i = 0; i < 30; i++) {
 
-            Tick t = this.d.get(i);
-            System.out.println(i + " " + t.getDate() + " " + t.getTimestamp() + " " + t.getImb() + " " + t.getImb_bucket() + " " + t.getNext_imb_bucket() + " " + t.getSpread() + " " + t.getdM());
+            Tick t = dm0.get(i);
+            System.out.println(i + " " + t.getDate() + " " + t.getTimestamp() + " " + t.getBid() + " " + t.getAsk() + " " + t.getMid() + " " + t.getdM());
 
         }
 
-        for(int i = this.d.size() - 30; i < this.d.size(); i++) {
-
-            Tick t = this.d.get(i);
-            System.out.println(i + " " + t.getDate() + " " + t.getTimestamp() + " " + t.getImb() + " " + t.getImb_bucket() + " " + t.getNext_imb_bucket() + " " + t.getSpread() + " " + t.getdM());
-
-        }
+//        for(int i = this.d.size() - 30; i < this.d.size(); i++) {
+//
+//            Tick t = this.d.get(i);
+//            System.out.println(i + " " + t.getDate() + " " + t.getTimestamp() + " " + t.getImb() + " " + t.getImb_bucket() + " " + t.getNext_imb_bucket() + " " + t.getSpread() + " " + t.getdM());
+//
+//        }
 
         System.out.println("total rows: " + this.d.size());
 
+        System.out.println("Total dm0: " + 2*dm0.size());
     }
 
     public static Double _qcuit(Double imb, ArrayList<Double> bucket, Double size) {
