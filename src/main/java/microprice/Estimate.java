@@ -117,19 +117,6 @@ public class Estimate {
             }
         }
 
-        System.out.println("Q counts");
-
-        for(int i = 0; i < Q1.getRowDimension(); i++) {
-
-            for(int j = 0; j < Q1.getColumnDimension(); j++) {
-                System.out.print(df1.format(Q1.getEntry(i,j)) + ", ");
-            }
-            System.out.println();
-        }
-
-        System.out.println("sum: " + Q1.getRowVector(0).getL1Norm());
-
-
 
         for(int r = 0; r < n_imb2; r++) {
 
@@ -149,34 +136,13 @@ public class Estimate {
 
         }
 
-        System.out.println();
-        for(int i = 0; i < Q.getRowDimension(); i++) {
-
-            for(int j = 0; j < Q.getColumnDimension(); j++) {
-                System.out.print(df.format(Q.getEntry(i,j)) + ", ");
-            }
-            System.out.println();
-        }
-
-        System.out.println();
-
-
-//        for(int i = 0; i < R2.getRowDimension(); i++) {
-//
-//            for(int j = 0; j < R2.getColumnDimension(); j++) {
-//                System.out.print(df.format(R2.getEntry(i,j)) + ", ");
-//            }
-//            System.out.println();
-//        }
-
-
         Double[] mids = data.getAll_dms().stream().filter(aDouble -> aDouble != 0).collect(Collectors.toList()).toArray(new Double[0]);
 
-        System.out.println("K");
+
         double[] vec_all = new double[mids.length];
         for(int i = 0; i < mids.length; i++) {
             vec_all[i] = mids[i];
-            System.out.println(vec_all[i]);
+            //System.out.println(vec_all[i]);
         }
 
         RealMatrix K = MatrixUtils.createRealMatrix(vec_all.length,1);
@@ -189,26 +155,8 @@ public class Estimate {
         RealMatrix inverseEyeQ = MatrixUtils.inverse(eye.subtract(Q));
 
         G1 = (inverseEyeQ.multiply(R1)).multiply(K);
-
-//        for(int i = 0; i < G1.getRowDimension(); i++) {
-//
-//            for(int j = 0; j < G1.getColumnDimension(); j++) {
-//                System.out.print(df.format(G1.getEntry(i,j)) + ", ");
-//            }
-//            System.out.println();
-//        }
-
         B = inverseEyeQ.multiply(R2);
 
-//        System.out.println("Print B");
-//        for(int i = 0; i < B.getRowDimension(); i++) {
-//
-//            for(int j = 0; j < B.getColumnDimension(); j++) {
-//                System.out.print(df.format(B.getEntry(i,j)) + ", ");
-//            }
-//            System.out.println();
-//        }
-//        System.out.println();
     }
 
     public void recursive(int n_iterations) {
@@ -254,7 +202,7 @@ public class Estimate {
 
         ArrayList<Tick> ticks = DataStore.getTickData("/home/lisztian/AutomataFX/workspace/MicropricesFX/data/bac.csv");
 
-        SymmetrizedData sym = new SymmetrizedData(ticks, 1, 2);
+        SymmetrizedData sym = new SymmetrizedData(ticks, 6, 2, 10);
 
 
         Estimate est = new Estimate(sym);

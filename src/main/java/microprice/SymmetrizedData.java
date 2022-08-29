@@ -19,7 +19,7 @@ public class SymmetrizedData {
         return quants;
     }
 
-    private ArrayList<Tick> d;
+
     private int dt;
     private double ticksize;
 
@@ -33,13 +33,6 @@ public class SymmetrizedData {
         this.n_spread = n_spread;
     }
 
-    public ArrayList<Tick> getD() {
-        return d;
-    }
-
-    public void setD(ArrayList<Tick> d) {
-        this.d = d;
-    }
 
     public int getDt() {
         return dt;
@@ -134,12 +127,12 @@ public class SymmetrizedData {
         this.all_spreads = all_spreads;
     }
 
-    public SymmetrizedData(ArrayList<Tick> d, int dt, int n_spread) {
+    public SymmetrizedData(ArrayList<Tick> d, int dt, int n_spread, int n_imb) {
 
         spreads = new HashMap<Double, MutableInt>();
         mid = new HashMap<Double, MutableInt>();
 
-        this.n_imb = 10;
+        this.n_imb = n_imb;
         this.dt = dt;
         this.n_spread = n_spread;
         this.ticksize = d.stream().filter(t -> t.getSpread() > 0)
@@ -147,34 +140,22 @@ public class SymmetrizedData {
 
         this.ticksize = Math.round(this.ticksize*100.0)/100.0;
 
-        System.out.println("total size before filter: " + d.size());
-        for(int i = 0; i < 80; i++) {
-
-            Tick t = d.get(i);
-            System.out.println(i + " " + t.getDate() + " " + t.getTimestamp() + " " + t.getSpread() + " " + n_spread*ticksize);
-
-        }
-
-
 
         d = d.stream().filter(t-> (t.getSpread() > 0 && t.getSpread() <= n_spread*ticksize))
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        System.out.println("total size after spread filter: " + d.size());
-
         List<Double> imbs = d.stream().map(tick -> tick.getImb())
                 .collect(Collectors.toList());
 
+        int bucket_size = (int)Math.round(100.0/n_imb);
         List<Integer> buckets = new ArrayList<>();
-        for(int i = 1; i <= 10; i++) buckets.add(i*10);
+        for(int i = 1; i <= n_imb; i++) buckets.add(i*bucket_size);
 
         Map<Integer, Double> qcut = Quantiles.percentiles().indexes(buckets).compute(imbs);
 
         quants = new ArrayList<Double>();
         for(Map.Entry<Integer, Double> e : qcut.entrySet()) {
-            System.out.println(e.getValue() + " " + e.getKey());
             quants.add(e.getValue());
-
         }
         Collections.sort(quants);
 
@@ -185,12 +166,11 @@ public class SymmetrizedData {
         spread_imb_bucket_map = HashBasedTable.create();
 
 
-        this.d = new ArrayList<Tick>();
 
 
-        ArrayList<Tick> dm0 = new ArrayList<>();
+        double round_tick = 10.0/ticksize;
 
-        ArrayList<Tick> mirror = new ArrayList<>();
+
         for(int i = 0; i < d.size() - dt; i++) {
 
             Tick t = d.get(i);
@@ -202,23 +182,21 @@ public class SymmetrizedData {
             t.setSpread( Math.round((t.getSpread())/this.ticksize) * this.ticksize  );
             next_t.setSpread( Math.round((next_t.getSpread())/this.ticksize) * this.ticksize  );
 
-            t.setImb_bucket( _qcuit(t.getImb(), quants, 10.0));
+            t.setImb_bucket( _qcuit(t.getImb(), quants));
 
-            t.setNext_imb_bucket( _qcuit(next_t.getImb(), quants, 10.0));
+            t.setNext_imb_bucket( _qcuit(next_t.getImb(), quants));
+
+
+
             t.setNext_mid( next_t.getMid());
             t.setNext_spread(next_t.getSpread());
             t.setNext_time(next_t.getTimestamp());
 
-            t.setdM( Math.round ( (next_t.getMid() - t.getMid()) *1000.0 ) /1000.0);
-
-//            if(i < 100) {
-//                System.out.println(i + " " + t.getDate() + " " + t.getTimestamp() + " " + t.getBid() + " " + t.getAsk() + " " + t.getMid() + " " + t.getdM() + " " + next_t.getMid() + " " + (next_t.getMid() - t.getMid()));
-//            }
+            t.setdM( Math.round ( (next_t.getMid() - t.getMid()) *round_tick ) /round_tick);
 
 
             if( Math.abs(t.getdM()) <= ticksize*1.1  ) {
 
-                this.d.add(t);
 
                 MutableInt m = spreads.get(t.getSpread());
                 if(m == null) {
@@ -257,10 +235,9 @@ public class SymmetrizedData {
                 copy_t.setdM(-t.getdM());
                 copy_t.setMid(-t.getMid());
 
-                copy_t.setImb_bucket(9 - t.getImb_bucket());
-                copy_t.setNext_imb_bucket(9 - t.getNext_imb_bucket());
+                copy_t.setImb_bucket((n_imb - 1) - t.getImb_bucket());
+                copy_t.setNext_imb_bucket((n_imb - 1) - t.getNext_imb_bucket());
 
-                mirror.add(copy_t);
 
                 if(t.getdM() == 0) {
 
@@ -285,8 +262,6 @@ public class SymmetrizedData {
                     else {
                         nmlist2.add(copy_t);
                     }
-
-                    dm0.add(t);
 
 
                 }
@@ -325,8 +300,6 @@ public class SymmetrizedData {
 
                     }
 
-
-
                     ArrayList<Tick> list2 = spread_imb_bucket_map.get(t.getSpread(), copy_t.getImb_bucket());
                     if(list2 == null) {
                         list2 = new ArrayList<Tick>();  list2.add(copy_t);
@@ -348,25 +321,7 @@ public class SymmetrizedData {
         all_dms.addAll(mid.keySet());
         all_spreads.addAll(spreads.keySet());
 
-//        for(Map.Entry<Double, MutableInt> e : spreads.entrySet()) {
-//
-//            all_spreads.add(e.getKey());
-//
-//            for(int i = 0; i < 10; i++) {
-//                if(next_imb_bucket_map_no_move.get(e.getKey(), (Double)i) != null) {
-//                    System.out.println(i + " " + next_imb_bucket_map_no_move.get(e.getKey(), (Double)i).size());
-//                }
-//            }
-//
-//            System.out.println("diff map");
-//            for(Map.Entry<Double, MutableInt> me : mid.entrySet()) {
-//
-//                if(next_imb_bucket_map.get(e.getKey(), (me.getKey())) != null) {
-//                    System.out.println(me.getKey() + " " + next_imb_bucket_map.get(e.getKey(), me.getKey()).size());
-//                }
-//            }
-//            System.out.println();
-//        }
+
         Collections.sort(all_spreads);
         Collections.sort(all_dms);
 
@@ -375,31 +330,13 @@ public class SymmetrizedData {
             System.out.println(dms);
         }
 
-        System.out.println("total rows: " + (this.d.size() + mirror.size()));
-        this.d.addAll(mirror);
 
 
 
-        for(int i = 0; i < 30; i++) {
 
-            Tick t = dm0.get(i);
-            System.out.println(i + " " + t.getDate() + " " + t.getTimestamp() + " " + t.getBid() + " " + t.getAsk() + " " + t.getMid() + " " + t.getdM());
-
-        }
-
-//        for(int i = this.d.size() - 30; i < this.d.size(); i++) {
-//
-//            Tick t = this.d.get(i);
-//            System.out.println(i + " " + t.getDate() + " " + t.getTimestamp() + " " + t.getImb() + " " + t.getImb_bucket() + " " + t.getNext_imb_bucket() + " " + t.getSpread() + " " + t.getdM());
-//
-//        }
-
-        System.out.println("total rows: " + this.d.size());
-
-        System.out.println("Total dm0: " + 2*dm0.size());
     }
 
-    public static Double _qcuit(Double imb, ArrayList<Double> bucket, Double size) {
+    public static Double _qcuit(Double imb, ArrayList<Double> bucket) {
 
         for(int i = 0; i < bucket.size(); i++) {
             if(imb > bucket.get(i)) {
@@ -416,7 +353,7 @@ public class SymmetrizedData {
 
         ArrayList<Tick> ticks = DataStore.getTickData("/home/lisztian/MicropriceFX/data/bac.csv");
 
-        SymmetrizedData sym = new SymmetrizedData(ticks, 1, 2);
+        SymmetrizedData sym = new SymmetrizedData(ticks, 1, 2, 20);
 
     }
 
