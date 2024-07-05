@@ -200,7 +200,7 @@ public class Estimate {
 
     public static void main(String[] args) throws IOException {
 
-        ArrayList<Tick> ticks = DataStore.getTickData("/home/lisztian/AutomataFX/workspace/MicropricesFX/data/bac.csv");
+        ArrayList<Tick> ticks = DataStore.getTickData("bac");
 
         SymmetrizedData sym = new SymmetrizedData(ticks, 6, 2, 10);
 

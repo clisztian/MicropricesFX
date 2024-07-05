@@ -351,7 +351,7 @@ public class SymmetrizedData {
 
     public static void main(String[] args) throws IOException {
 
-        ArrayList<Tick> ticks = DataStore.getTickData("/home/lisztian/MicropriceFX/data/bac.csv");
+        ArrayList<Tick> ticks = DataStore.getTickData("bac");
 
         SymmetrizedData sym = new SymmetrizedData(ticks, 1, 2, 20);
 
