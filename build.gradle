@@ -1,0 +1,43 @@
+plugins {
+    id 'java'
+}
+
+
+group = 'ai.micropricesfx'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+
+    // https://mvnrepository.com/artifact/dev.brachtendorf/pcg-java-10
+    implementation group: 'dev.brachtendorf', name: 'pcg-java-10', version: '1.0.1'
+    implementation group: 'joda-time', name: 'joda-time', version: '2.10.8'
+// https://mvnrepository.com/artifact/tech.molecules/external-umap-java
+    implementation group: 'net.sourceforge.javacsv', name: 'javacsv', version: '2.0'
+    implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
+// https://mvnrepository.com/artifact/org.apache.commons/commons-math3
+    implementation group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
+// https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.13.0'
+
+
+    implementation group: 'ca.umontreal.iro.simul', name: 'ssj', version: '3.3.2'
+
+// https://mvnrepository.com/artifact/com.github.signaflo/timeseries
+    implementation group: 'com.github.signaflo', name: 'timeseries', version: '0.4'
+    // https://mvnrepository.com/artifact/com.google.guava/guava
+    // https://mvnrepository.com/artifact/com.opencsv/opencsv
+    implementation group: 'com.opencsv', name: 'opencsv', version: '5.9'
+    implementation group: 'com.google.guava', name: 'guava', version: '31.1-jre'
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+
+}
+
+test {
+    useJUnitPlatform()
+}
