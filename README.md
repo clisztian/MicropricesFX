@@ -8,3 +8,5 @@ future prices given higher order information of imbalances in the orderbook. The
 account a current microprice estimate given the spread and best bid to ask imbalance, and adjusts the
 micro-price based on recent dynamics of higher price rank imbalances. This code introduces a computationally
 fast estimator using a recently proposed hyperdimensional vector Tsetlin machine framework.
+
+![image](https://github.com/user-attachments/assets/fbc1383f-c3c0-4eaf-a292-9a1beaf0769d)
