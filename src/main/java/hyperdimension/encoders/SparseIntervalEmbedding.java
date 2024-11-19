@@ -26,6 +26,15 @@ public class SparseIntervalEmbedding {
     }
 
     public SparseBinaryVector forward(double x) {
+
+        if (x < low) {
+            x = low + SLACK;
+        }
+        else if (x > high) {
+            x = high - SLACK;
+        }
+
+
         int index = (int) ((x - low) / step);
         return intervals.get(index);
     }
